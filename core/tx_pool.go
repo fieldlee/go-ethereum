@@ -599,9 +599,9 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	// Ensure the transaction doesn't exceed the current block limit gas.
 	//log.Error(fmt.Sprintf("tx.Cost():%s",tx.Cost()))
 	//log.Error(fmt.Sprintf("pool.currentMaxGas:%s",pool.currentMaxGas))
-	if pool.currentMaxGas < tx.Gas() {
+	//if pool.currentMaxGas < tx.Gas() {
 		//return ErrGasLimit
-	}
+	//}
 	// Make sure the transaction is signed properly
 	from, err := types.Sender(pool.signer, tx)
 	if err != nil {
@@ -611,9 +611,9 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	local = local || pool.locals.contains(from) // account may be local even if the transaction arrived from the network
 	//log.Error(fmt.Sprintf("tx.Gas():%s",tx.Gas()))
 	//log.Error(fmt.Sprintf("tx.GasPrice():%s",tx.GasPrice()))
-	if !local && pool.gasPrice.Cmp(tx.GasPrice()) > 0 {
-		return ErrUnderpriced
-	}
+	//if !local && pool.gasPrice.Cmp(tx.GasPrice()) > 0 {
+	//	return ErrUnderpriced
+	//}
 	// Ensure the transaction adheres to nonce ordering
 	if pool.currentState.GetNonce(from) > tx.Nonce() {
 		return ErrNonceTooLow
@@ -625,16 +625,16 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	log.Error(pool.currentState.GetBalance(from).String())
 
 
-	if pool.currentState.GetBalance(from).Cmp(tx.Cost()) < 0 {
-		return ErrInsufficientFunds
-	}
-	intrGas, err := IntrinsicGas(tx.Data(), tx.To() == nil, pool.homestead)
-	if err != nil {
-		return err
-	}
-	if tx.Gas() < intrGas {
-		return ErrIntrinsicGas
-	}
+	//if pool.currentState.GetBalance(from).Cmp(tx.Cost()) < 0 {
+	//	return ErrInsufficientFunds
+	//}
+	//intrGas, err := IntrinsicGas(tx.Data(), tx.To() == nil, pool.homestead)
+	//if err != nil {
+	//	return err
+	//}
+	//if tx.Gas() < intrGas {
+	//	return ErrIntrinsicGas
+	//}
 	return nil
 }
 

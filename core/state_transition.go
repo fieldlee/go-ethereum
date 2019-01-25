@@ -166,13 +166,13 @@ func (st *StateTransition) buyGas() error {
 	log.Error("buyGas")
 	mgval := new(big.Int).Mul(new(big.Int).SetUint64(st.msg.Gas()), st.gasPrice)
 	if st.state.GetBalance(st.msg.From()).Cmp(mgval) < 0 {
-		log.Error("buyGas11111")
+		//log.Error("buyGas11111")
 		return errInsufficientBalanceForGas
 	}
-	log.Error(fmt.Sprintf("st.gas:%s",st.gas))
-	log.Error(fmt.Sprintf("st.msg.Gas:%s",st.msg.Gas()))
+	//log.Error(fmt.Sprintf("st.gas:%s",st.gas))
+	//log.Error(fmt.Sprintf("st.msg.Gas:%s",st.msg.Gas()))
 	if err := st.gp.SubGas(st.msg.Gas()); err != nil {
-		log.Error("buyGas22222")
+		//log.Error("buyGas22222")
 		return err
 	}
 
