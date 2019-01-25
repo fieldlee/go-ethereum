@@ -388,11 +388,15 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
 func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs, passwd string) (*SignTransactionResult, error) {
 	// No need to obtain the noncelock mutex, since we won't be sending this
 	// tx into the transaction pool, but right back to the user
+	// modify gas and gasprice to zero by fieldlee
 	if args.Gas == nil {
-		return nil, fmt.Errorf("gas not specified")
+		args.Gas = new(hexutil.Uint64)
+		*(*uint64)(args.Gas) = 0
+		//return nil, fmt.Errorf("gas not specified")
 	}
 	if args.GasPrice == nil {
-		return nil, fmt.Errorf("gasPrice not specified")
+		args.GasPrice = (*hexutil.Big)(big.NewInt(0))
+		//return nil, fmt.Errorf("gasPrice not specified")
 	}
 	if args.Nonce == nil {
 		return nil, fmt.Errorf("nonce not specified")
@@ -1206,7 +1210,10 @@ type SendTxArgs struct {
 func (args *SendTxArgs) setDefaults(ctx context.Context, b Backend) error {
 	if args.Gas == nil {
 		args.Gas = new(hexutil.Uint64)
-		*(*uint64)(args.Gas) = 90000
+		// set default gas value to zero by fieldlee
+		//*(*uint64)(args.Gas) = 90000
+		*(*uint64)(args.Gas) = 0
+
 	}
 	if args.GasPrice == nil {
 		price, err := b.SuggestPrice(ctx)
@@ -1214,6 +1221,7 @@ func (args *SendTxArgs) setDefaults(ctx context.Context, b Backend) error {
 			return err
 		}
 		args.GasPrice = (*hexutil.Big)(price)
+
 	}
 	if args.Value == nil {
 		args.Value = new(hexutil.Big)

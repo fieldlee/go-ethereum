@@ -249,8 +249,9 @@ func NewTxPool(config TxPoolConfig, chainconfig *params.ChainConfig, chain block
 		beats:       make(map[common.Address]time.Time),
 		all:         newTxLookup(),
 		chainHeadCh: make(chan ChainHeadEvent, chainHeadChanSize),
-		gasPrice:    new(big.Int).SetUint64(config.PriceLimit),
+		gasPrice:    new(big.Int).SetUint64(0),
 	}
+	// modify gasprice to zero (config.PriceLimit to zero) by fieldlee
 	pool.locals = newAccountSet(pool.signer)
 	for _, addr := range config.Locals {
 		log.Info("Setting new local account", "address", addr)
@@ -596,8 +597,10 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 		return ErrNegativeValue
 	}
 	// Ensure the transaction doesn't exceed the current block limit gas.
+	//log.Error(fmt.Sprintf("tx.Cost():%s",tx.Cost()))
+	//log.Error(fmt.Sprintf("pool.currentMaxGas:%s",pool.currentMaxGas))
 	if pool.currentMaxGas < tx.Gas() {
-		return ErrGasLimit
+		//return ErrGasLimit
 	}
 	// Make sure the transaction is signed properly
 	from, err := types.Sender(pool.signer, tx)
@@ -606,6 +609,8 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	}
 	// Drop non-local transactions under our own minimal accepted gas price
 	local = local || pool.locals.contains(from) // account may be local even if the transaction arrived from the network
+	//log.Error(fmt.Sprintf("tx.Gas():%s",tx.Gas()))
+	//log.Error(fmt.Sprintf("tx.GasPrice():%s",tx.GasPrice()))
 	if !local && pool.gasPrice.Cmp(tx.GasPrice()) > 0 {
 		return ErrUnderpriced
 	}
@@ -618,7 +623,8 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	log.Error("balance1:")
 	log.Error(from.String())
 	log.Error(pool.currentState.GetBalance(from).String())
-	log.Error(tx.Cost().String())
+
+
 	if pool.currentState.GetBalance(from).Cmp(tx.Cost()) < 0 {
 		return ErrInsufficientFunds
 	}
@@ -642,17 +648,20 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 // the pool due to pricing constraints.
 func (pool *TxPool) add(tx *types.Transaction, local bool) (bool, error) {
 	// If the transaction is already known, discard it
+	//log.Error("1")
 	hash := tx.Hash()
 	if pool.all.Get(hash) != nil {
 		log.Trace("Discarding already known transaction", "hash", hash)
 		return false, fmt.Errorf("known transaction: %x", hash)
 	}
+	//log.Error("2")
 	// If the transaction fails basic validation, discard it
 	if err := pool.validateTx(tx, local); err != nil {
 		log.Trace("Discarding invalid transaction", "hash", hash, "err", err)
 		invalidTxCounter.Inc(1)
 		return false, err
 	}
+	//log.Error("3")
 	// If the transaction pool is full, discard underpriced transactions
 	if uint64(pool.all.Count()) >= pool.config.GlobalSlots+pool.config.GlobalQueue {
 		// If the new transaction is underpriced, don't accept it
@@ -669,6 +678,7 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (bool, error) {
 			pool.removeTx(tx.Hash(), false)
 		}
 	}
+	//log.Error("4")
 	// If the transaction is replacing an already pending one, do directly
 	from, _ := types.Sender(pool.signer, tx) // already validated
 	if list := pool.pending[from]; list != nil && list.Overlaps(tx) {
@@ -695,11 +705,14 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (bool, error) {
 
 		return old != nil, nil
 	}
+	//log.Error("5")
 	// New transaction isn't replacing a pending one, push into queue
 	replace, err := pool.enqueueTx(hash, tx)
 	if err != nil {
 		return false, err
 	}
+	//log.Error("6")
+	//log.Error(fmt.Sprintf("pool tx :%s",pool.all.Count()))
 	// Mark local addresses and journal local transactions
 	if local {
 		if !pool.locals.contains(from) {
@@ -710,6 +723,7 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (bool, error) {
 	pool.journalTx(from, tx)
 
 	log.Trace("Pooled new future transaction", "hash", hash, "from", from, "to", tx.To())
+	//log.Error(fmt.Sprintf("replace :%s",replace))
 	return replace, nil
 }
 
@@ -796,6 +810,7 @@ func (pool *TxPool) promoteTx(addr common.Address, hash common.Hash, tx *types.T
 // the sender as a local one in the mean time, ensuring it goes around the local
 // pricing constraints.
 func (pool *TxPool) AddLocal(tx *types.Transaction) error {
+	//log.Error(fmt.Sprintf("=====AddLocal:%s",tx))
 	return pool.addTx(tx, !pool.config.NoLocals)
 }
 

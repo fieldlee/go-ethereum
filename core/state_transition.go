@@ -18,6 +18,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"math/big"
 
@@ -84,6 +85,7 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 	} else {
 		gas = params.TxGas
 	}
+	log.Error(fmt.Sprintf("IntrinsicGas gas:%s",gas))
 	// Bump the required gas by the amount of transactional data
 	if len(data) > 0 {
 		// Zero and non-zero bytes are priced differently
@@ -94,12 +96,19 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 			}
 		}
 		// Make sure we don't exceed uint64 for all data combinations
+		log.Error(fmt.Sprintf("IntrinsicGas gas:%s",gas))
+		log.Error(fmt.Sprintf("(math.MaxUint64-gas):%s",(math.MaxUint64-gas)))
+		log.Error(fmt.Sprintf("params.TxDataNonZeroGas:%s",params.TxDataNonZeroGas))
+		log.Error(fmt.Sprintf("nz:%s",nz))
 		if (math.MaxUint64-gas)/params.TxDataNonZeroGas < nz {
 			return 0, vm.ErrOutOfGas
 		}
 		gas += nz * params.TxDataNonZeroGas
 
 		z := uint64(len(data)) - nz
+
+		log.Error(fmt.Sprintf("params.TxDataZeroGas:%s",params.TxDataZeroGas))
+		log.Error(fmt.Sprintf("z:%s",z))
 		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
 			return 0, vm.ErrOutOfGas
 		}
@@ -110,6 +119,8 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 
 // NewStateTransition initialises and returns a new state transition object.
 func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition {
+	log.Error(fmt.Sprintf("NewStateTransition"))
+
 	return &StateTransition{
 		gp:       gp,
 		evm:      evm,
@@ -129,6 +140,7 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 // indicates a core error meaning that the message would always fail for that particular
 // state and would never be accepted within a block.
 func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) ([]byte, uint64, bool, error) {
+	log.Error(fmt.Sprintf("ApplyMessage"))
 	return NewStateTransition(evm, msg, gp).TransitionDb()
 }
 
@@ -141,6 +153,7 @@ func (st *StateTransition) to() common.Address {
 }
 
 func (st *StateTransition) useGas(amount uint64) error {
+	log.Error(fmt.Sprintf("*****------------st.gas:%s   amount:%s",st.gas,amount))
 	if st.gas < amount {
 		return vm.ErrOutOfGas
 	}
@@ -150,17 +163,24 @@ func (st *StateTransition) useGas(amount uint64) error {
 }
 
 func (st *StateTransition) buyGas() error {
+	log.Error("buyGas")
 	mgval := new(big.Int).Mul(new(big.Int).SetUint64(st.msg.Gas()), st.gasPrice)
 	if st.state.GetBalance(st.msg.From()).Cmp(mgval) < 0 {
+		log.Error("buyGas11111")
 		return errInsufficientBalanceForGas
 	}
+	log.Error(fmt.Sprintf("st.gas:%s",st.gas))
+	log.Error(fmt.Sprintf("st.msg.Gas:%s",st.msg.Gas()))
 	if err := st.gp.SubGas(st.msg.Gas()); err != nil {
+		log.Error("buyGas22222")
 		return err
 	}
+
 	st.gas += st.msg.Gas()
 
 	st.initialGas = st.msg.Gas()
-	st.state.SubBalance(st.msg.From(), mgval)
+	//st.state.SubBalance(st.msg.From(), mgval)  // modify by fieldlee
+	st.state.SubBalance(st.msg.From(), new(big.Int).SetInt64(0))
 	return nil
 }
 
@@ -181,6 +201,7 @@ func (st *StateTransition) preCheck() error {
 // returning the result including the used gas. It returns an error if failed.
 // An error indicates a consensus issue.
 func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bool, err error) {
+	log.Error(fmt.Sprintf("TransitionDb"))
 	if err = st.preCheck(); err != nil {
 		return
 	}
@@ -190,7 +211,12 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	contractCreation := msg.To() == nil
 
 	// Pay intrinsic gas
+	// modify gas to zero by fieldlee
+
 	gas, err := IntrinsicGas(st.data, contractCreation, homestead)
+	log.Error(fmt.Sprintf("*******========state_transaction of gas TransitionDb: %s",gas))
+	gas = 0   // add by fieldlee
+	st.gas = 0
 	if err != nil {
 		return nil, 0, false, err
 	}
@@ -212,7 +238,9 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to(), st.data, st.gas, st.value)
 	}
+
 	if vmerr != nil {
+		log.Error(fmt.Sprintf("*****-----------vmerr:%s",vmerr.Error()))
 		log.Debug("VM returned with error", "err", vmerr)
 		// The only possible consensus-error would be if there wasn't
 		// sufficient balance to make the transfer happen. The first
@@ -222,8 +250,8 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 		}
 	}
 	st.refundGas()
-	st.state.AddBalance(st.evm.Coinbase, new(big.Int).Mul(new(big.Int).SetUint64(st.gasUsed()), st.gasPrice))
-
+	//st.state.AddBalance(st.evm.Coinbase, new(big.Int).Mul(new(big.Int).SetUint64(st.gasUsed()), st.gasPrice))
+	st.state.AddBalance(st.evm.Coinbase, new(big.Int).SetInt64(0))
 	return ret, st.gasUsed(), vmerr != nil, err
 }
 
@@ -234,17 +262,22 @@ func (st *StateTransition) refundGas() {
 		refund = st.state.GetRefund()
 	}
 	st.gas += refund
-
+	st.gas = 0   // add by fieldlee
 	// Return ETH for remaining gas, exchanged at the original rate.
-	remaining := new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
+	//remaining := new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
+	remaining := new(big.Int).SetInt64(0)
 	st.state.AddBalance(st.msg.From(), remaining)
 
 	// Also return remaining gas to the block gas counter so it is
 	// available for the next transaction.
+
 	st.gp.AddGas(st.gas)
 }
 
 // gasUsed returns the amount of gas used up by the state transition.
 func (st *StateTransition) gasUsed() uint64 {
-	return st.initialGas - st.gas
+	//return st.initialGas - st.gas
+	log.Error("state_transaction of gas st.initialGas: %s",st.initialGas)
+	log.Error("state_transaction of gas st.gas: %s",st.gas)
+	return 0   // modify gasused to 0 by fieldlee
 }

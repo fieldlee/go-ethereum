@@ -360,6 +360,9 @@ func (pool *TxPool) validateTx(ctx context.Context, tx *types.Transaction) error
 	// Check the transaction doesn't exceed the current
 	// block limit gas.
 	header := pool.chain.GetHeaderByHash(pool.head)
+
+	//log.Error(fmt.Sprintf("------tx.Cost():%s",tx.Cost()))
+	//log.Error(fmt.Sprintf("------header.GasLimit:%s",header.GasLimit))
 	if header.GasLimit < tx.Gas() {
 		return core.ErrGasLimit
 	}

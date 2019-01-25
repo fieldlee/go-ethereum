@@ -19,6 +19,7 @@ package miner
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -460,12 +461,17 @@ func (w *worker) mainLoop() {
 				w.mu.RUnlock()
 
 				txs := make(map[common.Address]types.Transactions)
+				log.Error(fmt.Sprintf("======ev.Txs:%s",ev.Txs))
 				for _, tx := range ev.Txs {
 					acc, _ := types.Sender(w.current.signer, tx)
 					txs[acc] = append(txs[acc], tx)
 				}
 				txset := types.NewTransactionsByPriceAndNonce(w.current.signer, txs)
+
+				log.Error(fmt.Sprintf("-------channel txs:%s",txset))
+
 				w.commitTransactions(txset, coinbase, nil)
+
 				w.updateSnapshot()
 			} else {
 				// If we're mining, but nothing is being processed, wake on new transactions
@@ -555,6 +561,9 @@ func (w *worker) resultLoop() {
 			)
 			w.pendingMu.RLock()
 			task, exist := w.pendingTasks[sealhash]
+
+			//log.Error(fmt.Sprintf("=====task:%s,exist:%s",task.block,exist))
+
 			w.pendingMu.RUnlock()
 			if !exist {
 				log.Error("Block found but no relative pending task", "number", block.Number(), "sealhash", sealhash, "hash", hash)
@@ -696,6 +705,7 @@ func (w *worker) commitTransaction(tx *types.Transaction, coinbase common.Addres
 		w.current.state.RevertToSnapshot(snap)
 		return nil, err
 	}
+	//log.Error(fmt.Sprintf("commitTransaction to address:%s",tx.To()))
 	w.current.txs = append(w.current.txs, tx)
 	w.current.receipts = append(w.current.receipts, receipt)
 
@@ -707,6 +717,8 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 	if w.current == nil {
 		return true
 	}
+
+	//log.Error(fmt.Sprintf("-----------txs:%s",txs))
 
 	if w.current.gasPool == nil {
 		w.current.gasPool = new(core.GasPool).AddGas(w.current.header.GasLimit)
@@ -733,25 +745,32 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 					inc:   true,
 				}
 			}
+			log.Error(fmt.Sprintf("atomic.LoadInt32(interrupt) == commitInterruptNewHead:%s",atomic.LoadInt32(interrupt) == commitInterruptNewHead))
 			return atomic.LoadInt32(interrupt) == commitInterruptNewHead
 		}
 		// If we don't have enough gas for any further transactions then we're done
+		log.Error(fmt.Sprintf("w.current.gasPool.Gas() < params.TxGas:%s",w.current.gasPool.Gas() < params.TxGas))
 		if w.current.gasPool.Gas() < params.TxGas {
 			log.Trace("Not enough gas for further transactions", "have", w.current.gasPool, "want", params.TxGas)
-			break
+			//break
 		}
 		// Retrieve the next transaction and abort if all done
 		tx := txs.Peek()
+
 		if tx == nil {
 			break
+		}else{
+			log.Error(fmt.Sprintf("*****-----------tx.To():%s",tx.To().String()))
 		}
 		// Error may be ignored here. The error has already been checked
 		// during transaction acceptance is the transaction pool.
 		//
 		// We use the eip155 signer regardless of the current hf.
 		from, _ := types.Sender(w.current.signer, tx)
+		//log.Error(fmt.Sprintf("*****-----------tx.from():%s",from.String()))
 		// Check whether the tx is replay protected. If we're not in the EIP155 hf
 		// phase, start ignoring the sender until we do.
+		//log.Error(fmt.Sprintf("tx.Protected() && !w.config.IsEIP155(w.current.header.Number):%s",tx.Protected() && !w.config.IsEIP155(w.current.header.Number)))
 		if tx.Protected() && !w.config.IsEIP155(w.current.header.Number) {
 			log.Trace("Ignoring reply protected transaction", "hash", tx.Hash(), "eip155", w.config.EIP155Block)
 
@@ -760,8 +779,9 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 		}
 		// Start executing the transaction
 		w.current.state.Prepare(tx.Hash(), common.Hash{}, w.current.tcount)
-
+		//log.Error(fmt.Sprintf("Start executing the transaction"))
 		logs, err := w.commitTransaction(tx, coinbase)
+
 		switch err {
 		case core.ErrGasLimitReached:
 			// Pop the current out-of-gas transaction without shifting in the next from the account
@@ -782,6 +802,9 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 			// Everything ok, collect the logs and shift in the next transaction from the same account
 			coalescedLogs = append(coalescedLogs, logs...)
 			w.current.tcount++
+
+			log.Debug("Transaction success", "hash", tx.Hash())
+
 			txs.Shift()
 
 		default:
@@ -812,6 +835,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 	if interrupt != nil {
 		w.resubmitAdjustCh <- &intervalAdjust{inc: false}
 	}
+	//log.Error(fmt.Sprintf("============commitTransactions:%s",w.current.txs))
 	return false
 }
 
@@ -834,6 +858,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 	}
 
 	num := parent.Number()
+
 	header := &types.Header{
 		ParentHash: parent.Hash(),
 		Number:     num.Add(num, common.Big1),
@@ -910,6 +935,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 
 	// Fill the block with all available pending transactions.
 	pending, err := w.eth.TxPool().Pending()
+	//log.Error(fmt.Sprintf("=======len(pending):%s",len(pending)))
 	if err != nil {
 		log.Error("Failed to fetch pending transactions", "err", err)
 		return
@@ -921,6 +947,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 	}
 	// Split the pending transactions into locals and remotes
 	localTxs, remoteTxs := make(map[common.Address]types.Transactions), pending
+	//log.Error(fmt.Sprintf("=======w.eth.TxPool().Locals():%s",w.eth.TxPool().Locals()))
 	for _, account := range w.eth.TxPool().Locals() {
 		if txs := remoteTxs[account]; len(txs) > 0 {
 			delete(remoteTxs, account)
@@ -939,6 +966,9 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 			return
 		}
 	}
+
+	//log.Error(fmt.Sprintf("len(localTxs):%s  len(remoteTxs) :%s ",len(localTxs),len(remoteTxs)))
+
 	w.commit(uncles, w.fullTaskHook, true, tstart)
 }
 
@@ -952,7 +982,12 @@ func (w *worker) commit(uncles []*types.Header, interval func(), update bool, st
 		*receipts[i] = *l
 	}
 	s := w.current.state.Copy()
+
+	log.Error(fmt.Sprintf("************w.current.txs:%s",w.current.txs))
+
 	block, err := w.engine.Finalize(w.chain, w.current.header, s, w.current.txs, uncles, w.current.receipts)
+
+
 	if err != nil {
 		return err
 	}

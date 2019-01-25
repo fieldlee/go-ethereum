@@ -18,6 +18,7 @@ package core
 
 import (
 	"container/heap"
+
 	"math"
 	"math/big"
 	"sort"
@@ -295,8 +296,15 @@ func (l *txList) Filter(costLimit *big.Int, gasLimit uint64) (types.Transactions
 	l.costcap = new(big.Int).Set(costLimit) // Lower the caps to the thresholds
 	l.gascap = gasLimit
 
+	//log.Error(fmt.Sprintf("l.costcap:%s",l.costcap))
+	//log.Error(fmt.Sprintf("l.gascap:%s",l.gascap))
+
 	// Filter out all the transactions above the account's funds
-	removed := l.txs.Filter(func(tx *types.Transaction) bool { return tx.Cost().Cmp(costLimit) > 0 || tx.Gas() > gasLimit })
+	// modify by fieldlee
+	//removed := l.txs.Filter(func(tx *types.Transaction) bool { return tx.Cost().Cmp(costLimit) > 0 || tx.Gas() > gasLimit })
+	removed := l.txs.Filter(func(tx *types.Transaction) bool { return false })
+
+	//log.Error(fmt.Sprintf("removed:%s",removed.Len()))
 
 	// If the list was strict, filter anything above the lowest nonce
 	var invalids types.Transactions
@@ -372,12 +380,23 @@ func (h priceHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
 
 func (h priceHeap) Less(i, j int) bool {
 	// Sort primarily by price, returning the cheaper one
+	//modify by fieldlee
+
+	//switch h[i].GasPrice().Cmp(h[j].GasPrice()) {
+	//case -1:
+	//	return true
+	//case 1:
+	//	return false
+	//}
 	switch h[i].GasPrice().Cmp(h[j].GasPrice()) {
 	case -1:
 		return true
 	case 1:
 		return false
+	case 0:
+		return true
 	}
+
 	// If the prices match, stabilize via nonces (high nonce is worse)
 	return h[i].Nonce() > h[j].Nonce()
 }

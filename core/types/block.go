@@ -19,6 +19,7 @@ package types
 
 import (
 	"encoding/binary"
+
 	"io"
 	"math/big"
 	"sort"
@@ -182,6 +183,7 @@ func NewBlock(header *Header, txs []*Transaction, uncles []*Header, receipts []*
 	b := &Block{header: CopyHeader(header), td: new(big.Int)}
 
 	// TODO: panic if len(txs) != len(receipts)
+	//log.Error("))))))))))))))))))))")
 	if len(txs) == 0 {
 		b.header.TxHash = EmptyRootHash
 	} else {
@@ -206,7 +208,7 @@ func NewBlock(header *Header, txs []*Transaction, uncles []*Header, receipts []*
 			b.uncles[i] = CopyHeader(uncles[i])
 		}
 	}
-
+	//log.Error(fmt.Sprintf("()()()()():%s",b))
 	return b
 }
 

@@ -227,7 +227,9 @@ func (tx *Transaction) AsMessage(s Signer) (Message, error) {
 		data:       tx.data.Payload,
 		checkNonce: true,
 	}
-
+	//msg.amount = new(big.Int).SetInt64(0)   //add by fieldlee
+	msg.gasLimit = 0
+	msg.gasPrice = new(big.Int).SetInt64(0)
 	var err error
 	msg.from, err = Sender(s, tx)
 	return msg, err
