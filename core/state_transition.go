@@ -277,7 +277,7 @@ func (st *StateTransition) refundGas() {
 // gasUsed returns the amount of gas used up by the state transition.
 func (st *StateTransition) gasUsed() uint64 {
 	//return st.initialGas - st.gas
-	log.Error("state_transaction of gas st.initialGas: %s",st.initialGas)
-	log.Error("state_transaction of gas st.gas: %s",st.gas)
+	//log.Error("state_transaction of gas st.initialGas: %s",st.initialGas)
+	//log.Error("state_transaction of gas st.gas: %s",st.gas)
 	return 0   // modify gasused to 0 by fieldlee
 }

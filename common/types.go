@@ -35,7 +35,7 @@ const (
 	// HashLength is the expected length of the hash
 	HashLength = 32
 	// AddressLength is the expected length of the address
-	AddressLength = 18
+	AddressLength = 20	// modify address length by fieldlee
 )
 
 var (

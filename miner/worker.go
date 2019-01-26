@@ -759,8 +759,6 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 
 		if tx == nil {
 			break
-		}else{
-			log.Error(fmt.Sprintf("*****-----------tx.To():%s",tx.To().String()))
 		}
 		// Error may be ignored here. The error has already been checked
 		// during transaction acceptance is the transaction pool.
