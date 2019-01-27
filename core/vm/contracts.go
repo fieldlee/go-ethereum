@@ -61,7 +61,8 @@ var PrecompiledContractsByzantium = map[common.Address]PrecompiledContract{
 
 // RunPrecompiledContract runs and evaluates the output of a precompiled contract.
 func RunPrecompiledContract(p PrecompiledContract, input []byte, contract *Contract) (ret []byte, err error) {
-	gas := p.RequiredGas(input)
+	gas := p.RequiredGas(input)  // modify by fieldlee
+	//gas := uint64(0)
 	if contract.UseGas(gas) {
 		return p.Run(input)
 	}

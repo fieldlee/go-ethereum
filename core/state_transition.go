@@ -17,8 +17,11 @@
 package core
 
 import (
+	"bytes"
+	"compress/gzip"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"math/big"
 
@@ -197,6 +200,27 @@ func (st *StateTransition) preCheck() error {
 	return st.buyGas()
 }
 
+
+func bindataRead(data []byte) ([]byte, error) {
+	gz, err := gzip.NewReader(bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("Read %q: %v", err)
+	}
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, gz)
+	clErr := gz.Close()
+
+	if err != nil {
+		return nil, fmt.Errorf("Read %q: %v", err)
+	}
+	if clErr != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
 // TransitionDb will transition the state by applying the current message and
 // returning the result including the used gas. It returns an error if failed.
 // An error indicates a consensus issue.
@@ -209,10 +233,19 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	sender := vm.AccountRef(msg.From())
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
+	//contractCreation := true
+	log.Info(fmt.Sprintf("====================msg.From():%s",msg.From().String()))
+	log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.CheckNonce()))
+	log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.Value().String()))
+	log.Info(fmt.Sprintf("====================msg.Data():%s",len(msg.Data())))
+	datastring,_ :=  bindataRead(msg.Data())
+	log.Info(fmt.Sprintf("====================msg.Data():%s",datastring))
+
+	log.Info(fmt.Sprintf("====================msg.To():%s",msg.To().String()))
 
 	// Pay intrinsic gas
 	// modify gas to zero by fieldlee
-
+	log.Error(fmt.Sprintf("====================contractCreation:%s",contractCreation))
 	gas, err := IntrinsicGas(st.data, contractCreation, homestead)
 	log.Error(fmt.Sprintf("*******========state_transaction of gas TransitionDb: %s",gas))
 	gas = 0   // add by fieldlee
@@ -232,9 +265,11 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 		vmerr error
 	)
 	if contractCreation {
+		log.Error(fmt.Sprintf("&&&&&&&&&&&&---contractCreation:%s",st.gas))
 		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
 	} else {
 		// Increment the nonce for the next transaction
+		log.Error(fmt.Sprintf("&&&&&&&&&&&&---evm.call:%s",st.gas))
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to(), st.data, st.gas, st.value)
 	}
