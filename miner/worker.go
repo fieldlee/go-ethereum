@@ -718,7 +718,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 		return true
 	}
 
-	//log.Error(fmt.Sprintf("-----------txs:%s",txs))
+	log.Error(fmt.Sprintf("-----------txs:%s",txs))
 
 	if w.current.gasPool == nil {
 		w.current.gasPool = new(core.GasPool).AddGas(w.current.header.GasLimit)
