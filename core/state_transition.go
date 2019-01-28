@@ -240,8 +240,12 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	log.Info(fmt.Sprintf("====================msg.Data():%s",len(msg.Data())))
 	datastring,_ :=  bindataRead(msg.Data())
 	log.Info(fmt.Sprintf("====================msg.Data():%s",datastring))
+	if (msg.To() == nil){
 
-	log.Info(fmt.Sprintf("====================msg.To():%s",msg.To().String()))
+	}else{
+		log.Info(fmt.Sprintf("====================msg.To():%s",msg.To().String()))
+
+	}
 
 	// Pay intrinsic gas
 	// modify gas to zero by fieldlee

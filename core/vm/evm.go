@@ -429,7 +429,10 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	start := time.Now()
 	log.Error("7")
 	ret, err := run(evm, contract, nil, false)
-	log.Error(fmt.Sprintf("7878787878----------err:%s",err.Error()))
+	if err != nil {
+		log.Error(fmt.Sprintf("7878787878----------err:%s",err.Error()))
+	}
+
 	log.Error("8")
 	// check whether the max code size has been exceeded
 	maxCodeSizeExceeded := evm.ChainConfig().IsEIP158(evm.BlockNumber) && len(ret) > params.MaxCodeSize
@@ -468,7 +471,10 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 		evm.vmConfig.Tracer.CaptureEnd(ret, gas-contract.Gas, time.Since(start), err)
 	}
 	log.Error("13")
-	log.Error(fmt.Sprintf("err:%s",err.Error()))
+	if err != nil {
+		log.Error(fmt.Sprintf("err:%s",err.Error()))
+	}
+
 	return ret, address, contract.Gas, err
 
 }

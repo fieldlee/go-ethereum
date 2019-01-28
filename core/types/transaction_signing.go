@@ -242,12 +242,12 @@ func recoverPlain(sighash common.Hash, R, S, Vb *big.Int, homestead bool) (commo
 		return common.Address{}, errors.New("invalid public key")
 	}
 	var addr common.Address
-	// transaction 签名打包 获取address
+	// transaction 签名打包 获取address // modify fieldlee
 	//log.Error("transaction signing:")
 	//log.Error(string(crypto.Keccak256(pub[1:])))
 	//log.Error(string(crypto.Keccak256(pub[1:])[12:]))
 
-	copy(addr[:], crypto.Keccak256(pub[1:])[14:])
+	copy(addr[:], crypto.Keccak256(pub[1:])[12:])  // modify fieldlee
 	return addr, nil
 }
 
