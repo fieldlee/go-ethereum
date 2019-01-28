@@ -247,7 +247,7 @@ func recoverPlain(sighash common.Hash, R, S, Vb *big.Int, homestead bool) (commo
 	//log.Error(string(crypto.Keccak256(pub[1:])))
 	//log.Error(string(crypto.Keccak256(pub[1:])[12:]))
 
-	copy(addr[:], crypto.Keccak256(pub[1:])[14:])  // modify fieldlee
+	copy(addr[:], crypto.Keccak256(pub[1:])[12:])  // modify fieldlee
 	return addr, nil
 }
 
