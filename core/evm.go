@@ -17,8 +17,6 @@
 package core
 
 import (
-	"fmt"
-	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -94,7 +92,7 @@ func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
 
 // Transfer subtracts amount from sender and adds amount to recipient using the given Db
 func Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
-	log.Error(fmt.Sprintf("Transfer ============= amount :%s",amount))
+	//log.Error(fmt.Sprintf("Transfer ============= amount :%s",amount))
 	db.SubBalance(sender, amount)
 	db.AddBalance(recipient, amount)
 }

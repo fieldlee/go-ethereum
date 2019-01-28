@@ -461,14 +461,14 @@ func (w *worker) mainLoop() {
 				w.mu.RUnlock()
 
 				txs := make(map[common.Address]types.Transactions)
-				log.Error(fmt.Sprintf("======ev.Txs:%s",ev.Txs))
+				//log.Error(fmt.Sprintf("======ev.Txs:%s",ev.Txs))
 				for _, tx := range ev.Txs {
 					acc, _ := types.Sender(w.current.signer, tx)
 					txs[acc] = append(txs[acc], tx)
 				}
 				txset := types.NewTransactionsByPriceAndNonce(w.current.signer, txs)
 
-				log.Error(fmt.Sprintf("-------channel txs:%s",txset))
+				//log.Error(fmt.Sprintf("-------channel txs:%s",txset))
 
 				w.commitTransactions(txset, coinbase, nil)
 
@@ -749,7 +749,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 			return atomic.LoadInt32(interrupt) == commitInterruptNewHead
 		}
 		// If we don't have enough gas for any further transactions then we're done
-		log.Error(fmt.Sprintf("w.current.gasPool.Gas() < params.TxGas:%s",w.current.gasPool.Gas() < params.TxGas))
+		//log.Error(fmt.Sprintf("w.current.gasPool.Gas() < params.TxGas:%s",w.current.gasPool.Gas() < params.TxGas))
 		if w.current.gasPool.Gas() < params.TxGas {
 			log.Trace("Not enough gas for further transactions", "have", w.current.gasPool, "want", params.TxGas)
 			//break

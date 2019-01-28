@@ -100,7 +100,7 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 	// Apply the transaction to the current state (included in the env)
 	_, gas, failed, err := ApplyMessage(vmenv, msg, gp)
 
-	log.Error(fmt.Sprintf("ApplyTransaction*****--------gas:%s",gas))
+	//log.Error(fmt.Sprintf("ApplyTransaction*****--------gas:%s",gas))
 
 	if err != nil {
 		log.Error(fmt.Sprintf("ApplyTransaction*****------- err :%s",err.Error()))
