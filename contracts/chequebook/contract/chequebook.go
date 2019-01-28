@@ -4,6 +4,8 @@
 package contract
 
 import (
+	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"strings"
 
@@ -162,6 +164,7 @@ func (_Chequebook *ChequebookRaw) Transact(opts *bind.TransactOpts, method strin
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
 func (_Chequebook *ChequebookCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+	log.Error(fmt.Sprintf("call method method :%d, info:%s",method,params))
 	return _Chequebook.Contract.contract.Call(opts, result, method, params...)
 }
 

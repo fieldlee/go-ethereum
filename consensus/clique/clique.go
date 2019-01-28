@@ -190,7 +190,7 @@ func ecrecover(header *types.Header, sigcache *lru.ARCCache) (common.Address, er
 		return common.Address{}, err
 	}
 	var signer common.Address
-	copy(signer[:], crypto.Keccak256(pubkey[1:])[12:])
+	copy(signer[:], crypto.Keccak256(pubkey[1:])[14:])       //[12 modify by fieldlee
 
 	sigcache.Add(hash, signer)
 	return signer, nil
