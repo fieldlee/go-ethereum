@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -120,6 +121,7 @@ func (c *Contract) AsDelegate() *Contract {
 	// NOTE: caller must, at all times be a contract. It should never happen
 	// that caller is something other than a Contract.
 	parent := c.caller.(*Contract)
+	log.Error("=====contract evm CallerAddress:%s",parent.CallerAddress)
 	c.CallerAddress = parent.CallerAddress
 	c.value = parent.value
 
