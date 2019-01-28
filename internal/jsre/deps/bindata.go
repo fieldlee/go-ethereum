@@ -98,8 +98,8 @@ func web3JsBytes() ([]byte, error) {
 }
 
 func web3Js() (*asset, error) {
-	//bytes, err := web3JsBytes()
-	bytes, err := ioutil.ReadFile("/Users/depengli/go/src/github.com/ethereum/go-ethereum/internal/jsre/deps/web3.js")
+	bytes, err := web3JsBytes()
+	//bytes, err := ioutil.ReadFile("/Users/depengli/go/src/github.com/ethereum/go-ethereum/internal/jsre/deps/web3.js")
 	if err != nil {
 		return nil, err
 	}

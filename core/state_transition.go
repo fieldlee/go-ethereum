@@ -88,7 +88,7 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 	} else {
 		gas = params.TxGas
 	}
-	log.Error(fmt.Sprintf("IntrinsicGas gas:%s",gas))
+	//log.Error(fmt.Sprintf("IntrinsicGas gas:%s",gas))
 	// Bump the required gas by the amount of transactional data
 	if len(data) > 0 {
 		// Zero and non-zero bytes are priced differently
@@ -99,10 +99,10 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 			}
 		}
 		// Make sure we don't exceed uint64 for all data combinations
-		log.Error(fmt.Sprintf("IntrinsicGas gas:%s",gas))
-		log.Error(fmt.Sprintf("(math.MaxUint64-gas):%s",(math.MaxUint64-gas)))
-		log.Error(fmt.Sprintf("params.TxDataNonZeroGas:%s",params.TxDataNonZeroGas))
-		log.Error(fmt.Sprintf("nz:%s",nz))
+		//log.Error(fmt.Sprintf("IntrinsicGas gas:%s",gas))
+		//log.Error(fmt.Sprintf("(math.MaxUint64-gas):%s",(math.MaxUint64-gas)))
+		//log.Error(fmt.Sprintf("params.TxDataNonZeroGas:%s",params.TxDataNonZeroGas))
+		//log.Error(fmt.Sprintf("nz:%s",nz))
 		if (math.MaxUint64-gas)/params.TxDataNonZeroGas < nz {
 			return 0, vm.ErrOutOfGas
 		}
@@ -110,8 +110,8 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 
 		z := uint64(len(data)) - nz
 
-		log.Error(fmt.Sprintf("params.TxDataZeroGas:%s",params.TxDataZeroGas))
-		log.Error(fmt.Sprintf("z:%s",z))
+		//log.Error(fmt.Sprintf("params.TxDataZeroGas:%s",params.TxDataZeroGas))
+		//log.Error(fmt.Sprintf("z:%s",z))
 		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
 			return 0, vm.ErrOutOfGas
 		}
@@ -122,7 +122,7 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 
 // NewStateTransition initialises and returns a new state transition object.
 func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition {
-	log.Error(fmt.Sprintf("NewStateTransition"))
+	//log.Error(fmt.Sprintf("NewStateTransition"))
 
 	return &StateTransition{
 		gp:       gp,
@@ -143,7 +143,7 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 // indicates a core error meaning that the message would always fail for that particular
 // state and would never be accepted within a block.
 func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) ([]byte, uint64, bool, error) {
-	log.Error(fmt.Sprintf("ApplyMessage"))
+	//log.Error(fmt.Sprintf("ApplyMessage"))
 	return NewStateTransition(evm, msg, gp).TransitionDb()
 }
 
@@ -156,7 +156,7 @@ func (st *StateTransition) to() common.Address {
 }
 
 func (st *StateTransition) useGas(amount uint64) error {
-	log.Error(fmt.Sprintf("*****------------st.gas:%s   amount:%s",st.gas,amount))
+	//log.Error(fmt.Sprintf("*****------------st.gas:%s   amount:%s",st.gas,amount))
 	if st.gas < amount {
 		return vm.ErrOutOfGas
 	}
@@ -166,7 +166,7 @@ func (st *StateTransition) useGas(amount uint64) error {
 }
 
 func (st *StateTransition) buyGas() error {
-	log.Error("buyGas")
+	//log.Error("buyGas")
 	mgval := new(big.Int).Mul(new(big.Int).SetUint64(st.msg.Gas()), st.gasPrice)
 	if st.state.GetBalance(st.msg.From()).Cmp(mgval) < 0 {
 		//log.Error("buyGas11111")
@@ -225,7 +225,7 @@ func bindataRead(data []byte) ([]byte, error) {
 // returning the result including the used gas. It returns an error if failed.
 // An error indicates a consensus issue.
 func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bool, err error) {
-	log.Error(fmt.Sprintf("TransitionDb"))
+	//log.Error(fmt.Sprintf("TransitionDb"))
 	if err = st.preCheck(); err != nil {
 		return
 	}
@@ -234,24 +234,24 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 	//contractCreation := true
-	log.Info(fmt.Sprintf("====================msg.From():%s",msg.From().String()))
-	log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.CheckNonce()))
-	log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.Value().String()))
-	log.Info(fmt.Sprintf("====================msg.Data():%s",len(msg.Data())))
-	datastring,_ :=  bindataRead(msg.Data())
-	log.Info(fmt.Sprintf("====================msg.Data():%s",datastring))
-	if (msg.To() == nil){
-
-	}else{
-		log.Info(fmt.Sprintf("====================msg.To():%s",msg.To().String()))
-
-	}
+	//log.Info(fmt.Sprintf("====================msg.From():%s",msg.From().String()))
+	//log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.CheckNonce()))
+	//log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.Value().String()))
+	//log.Info(fmt.Sprintf("====================msg.Data():%s",len(msg.Data())))
+	//datastring,_ :=  bindataRead(msg.Data())
+	//log.Info(fmt.Sprintf("====================msg.Data():%s",datastring))
+	//if (msg.To() == nil){
+	//
+	//}else{
+	//	log.Info(fmt.Sprintf("====================msg.To():%s",msg.To().String()))
+	//
+	//}
 
 	// Pay intrinsic gas
 	// modify gas to zero by fieldlee
-	log.Error(fmt.Sprintf("====================contractCreation:%s",contractCreation))
+	//log.Error(fmt.Sprintf("====================contractCreation:%s",contractCreation))
 	gas, err := IntrinsicGas(st.data, contractCreation, homestead)
-	log.Error(fmt.Sprintf("*******========state_transaction of gas TransitionDb: %s",gas))
+	//log.Error(fmt.Sprintf("*******========state_transaction of gas TransitionDb: %s",gas))
 	gas = 0   // add by fieldlee
 	st.gas = 0
 	if err != nil {
@@ -269,11 +269,11 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 		vmerr error
 	)
 	if contractCreation {
-		log.Error(fmt.Sprintf("&&&&&&&&&&&&---contractCreation:%s",st.gas))
+		//log.Error(fmt.Sprintf("&&&&&&&&&&&&---contractCreation:%s",st.gas))
 		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
 	} else {
 		// Increment the nonce for the next transaction
-		log.Error(fmt.Sprintf("&&&&&&&&&&&&---evm.call:%s",st.gas))
+		//log.Error(fmt.Sprintf("&&&&&&&&&&&&---evm.call:%s",st.gas))
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to(), st.data, st.gas, st.value)
 	}

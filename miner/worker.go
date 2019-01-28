@@ -718,7 +718,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 		return true
 	}
 
-	log.Error(fmt.Sprintf("-----------txs:%s",txs))
+	//log.Error(fmt.Sprintf("-----------txs:%s",txs))
 
 	if w.current.gasPool == nil {
 		w.current.gasPool = new(core.GasPool).AddGas(w.current.header.GasLimit)
@@ -981,7 +981,7 @@ func (w *worker) commit(uncles []*types.Header, interval func(), update bool, st
 	}
 	s := w.current.state.Copy()
 
-	log.Error(fmt.Sprintf("************w.current.txs:%s",w.current.txs))
+	//log.Error(fmt.Sprintf("************w.current.txs:%s",w.current.txs))
 
 	block, err := w.engine.Finalize(w.chain, w.current.header, s, w.current.txs, uncles, w.current.receipts)
 

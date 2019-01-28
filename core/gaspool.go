@@ -18,7 +18,6 @@ package core
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/log"
 	"math"
 )
 
@@ -38,8 +37,8 @@ func (gp *GasPool) AddGas(amount uint64) *GasPool {
 // SubGas deducts the given amount from the pool if enough gas is
 // available and returns an error otherwise.
 func (gp *GasPool) SubGas(amount uint64) error {
-	log.Error(fmt.Sprintf("SubGas****-----------uint64(*gp):%s",uint64(*gp)))
-	log.Error(fmt.Sprintf("SubGas***-----------amount:%s",amount))
+	//log.Error(fmt.Sprintf("SubGas****-----------uint64(*gp):%s",uint64(*gp)))
+	//log.Error(fmt.Sprintf("SubGas***-----------amount:%s",amount))
 	if uint64(*gp) < amount {
 		//return ErrGasLimitReached
 	}
