@@ -234,7 +234,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 	//contractCreation := true
-	//log.Info(fmt.Sprintf("====================msg.From():%s",msg.From().String()))
+	log.Info(fmt.Sprintf("====================msg.From():%s",msg.From().String()))
 	//log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.CheckNonce()))
 	//log.Info(fmt.Sprintf("====================msg.CheckNonce():%s",msg.Value().String()))
 	//log.Info(fmt.Sprintf("====================msg.Data():%s",len(msg.Data())))
@@ -269,11 +269,11 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 		vmerr error
 	)
 	if contractCreation {
-		//log.Error(fmt.Sprintf("&&&&&&&&&&&&---contractCreation:%s",st.gas))
+		log.Error(fmt.Sprintf("&&&&&&&&&&&&---contractCreation: sender%s",sender.Address().String()))
 		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
 	} else {
 		// Increment the nonce for the next transaction
-		//log.Error(fmt.Sprintf("&&&&&&&&&&&&---evm.call:%s",st.gas))
+		log.Error(fmt.Sprintf("&&&&&&&&&&&&---evm.call sender:%s",sender.Address().String()))
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to(), st.data, st.gas, st.value)
 	}
@@ -289,6 +289,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 		}
 	}
 	st.refundGas()
+	log.Error(fmt.Sprintf("*****-----------ret:%s",ret))
 	//st.state.AddBalance(st.evm.Coinbase, new(big.Int).Mul(new(big.Int).SetUint64(st.gasUsed()), st.gasPrice))
 	st.state.AddBalance(st.evm.Coinbase, new(big.Int).SetInt64(0))
 	return ret, st.gasUsed(), vmerr != nil, err
