@@ -17,6 +17,8 @@
 package vm
 
 import (
+	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -50,9 +52,9 @@ func getData(data []byte, start uint64, size uint64) []byte {
 // up to size with zero's. This function is overflow safe.
 func getDataBig(data []byte, start *big.Int, size *big.Int) []byte {
 	dlen := big.NewInt(int64(len(data)))
-
 	s := math.BigMin(start, dlen)
 	e := math.BigMin(new(big.Int).Add(s, size), dlen)
+	log.Info(fmt.Sprintf("getDataBig s:%s e:%s",s.String(),e.String()))
 	return common.RightPadBytes(data[s.Uint64():e.Uint64()], int(size.Uint64()))
 }
 

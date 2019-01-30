@@ -158,7 +158,7 @@ func (h UnprefixedHash) MarshalText() ([]byte, error) {
 
 // Address represents the 20 byte address of an Ethereum account.
 type Address [AddressLength]byte
-
+type Address20 [20]byte
 // BytesToAddress returns Address with value b.
 // If b is larger than len(h), b will be cropped from the left.
 func BytesToAddress(b []byte) Address {
@@ -167,6 +167,11 @@ func BytesToAddress(b []byte) Address {
 	return a
 }
 
+func BytesToAddress20(b []byte) Address20 {
+	var a Address20
+	a.SetBytes(b)
+	return a
+}
 // BigToAddress returns Address with byte values of b.
 // If b is larger than len(h), b will be cropped from the left.
 func BigToAddress(b *big.Int) Address { return BytesToAddress(b.Bytes()) }
@@ -175,6 +180,7 @@ func BigToAddress(b *big.Int) Address { return BytesToAddress(b.Bytes()) }
 // If s is larger than len(h), s will be cropped from the left.
 func HexToAddress(s string) Address { return BytesToAddress(FromHex(s)) }
 
+func HexToAddress20(s string) Address20 { return BytesToAddress20(FromHex(s)) }
 // IsHexAddress verifies whether a string can represent a valid hex-encoded
 // Ethereum address or not.
 func IsHexAddress(s string) bool {
@@ -189,6 +195,8 @@ func (a Address) Bytes() []byte { return a[:] }
 
 // Big converts an address to a big integer.
 func (a Address) Big() *big.Int { return new(big.Int).SetBytes(a[:]) }
+
+func (a Address20) Big() *big.Int { return new(big.Int).SetBytes(a[:]) }
 
 // Hash converts an address to a hash by left-padding it with zeros.
 func (a Address) Hash() Hash { return BytesToHash(a[:]) }
@@ -233,6 +241,13 @@ func (a *Address) SetBytes(b []byte) {
 		b = b[len(b)-AddressLength:]
 	}
 	copy(a[AddressLength-len(b):], b)
+}
+
+func (a *Address20) SetBytes(b []byte) {
+	if len(b) > len(a) {
+		b = b[len(b)-20:]
+	}
+	copy(a[20-len(b):], b)
 }
 
 // MarshalText returns the hex representation of a.

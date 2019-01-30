@@ -690,6 +690,8 @@ type CallArgs struct {
 func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber, timeout time.Duration) ([]byte, uint64, bool, error) {
 	defer func(start time.Time) { log.Debug("Executing EVM call finished", "runtime", time.Since(start)) }(time.Now())
 
+	log.Error(fmt.Sprintf("doCall ---- args.data : %s",string(args.Data)))
+
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
 		return nil, 0, false, err
@@ -753,6 +755,7 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 // It doesn't make and changes in the state/blockchain and is useful to execute and retrieve values.
 func (s *PublicBlockChainAPI) Call(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber) (hexutil.Bytes, error) {
 	result, _, _, err := s.doCall(ctx, args, blockNr, 5*time.Second)
+	log.Error(fmt.Sprintf("PublicBlockChainAPI Call:%s",result))
 	return (hexutil.Bytes)(result), err
 }
 

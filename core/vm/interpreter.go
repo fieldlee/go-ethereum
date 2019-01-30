@@ -18,6 +18,7 @@ package vm
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"hash"
 	"sync/atomic"
 
@@ -141,6 +142,15 @@ func (in *EVMInterpreter) enforceRestrictions(op OpCode, operation operation, st
 // considered a revert-and-consume-all-gas operation except for
 // errExecutionReverted which means revert-and-keep-gas-left.
 func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (ret []byte, err error) {
+
+	// modify by fieldlee
+	//if len(contract.caller.Address().String()) <= 38 {
+	//	newContractAdr := fmt.Sprintf("%s%s",contract.caller.Address().String(),"0000")
+	//	contract.caller = AccountRef(common.HexToAddress(newContractAdr))
+	//}
+
+	log.Error(fmt.Sprintf("%%%%%%%%%%%%%contract.caller address :%s ",contract.caller.Address().String()))
+
 	if in.intPool == nil {
 		in.intPool = poolOfIntPools.get()
 		defer func() {
@@ -255,6 +265,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		}
 
 		// execute the operation
+		//log.Error(fmt.Sprintf("*****======interperter contract input:%s",contract.Input))
 		res, err := operation.execute(&pc, in, contract, mem, stack)
 		// verifyPool is a build flag. Pool verification makes sure the integrity
 		// of the integer pool by comparing values to a default value.

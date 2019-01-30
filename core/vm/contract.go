@@ -17,7 +17,11 @@
 package vm
 
 import (
+	"bytes"
+	"compress/gzip"
+	"fmt"
 	"github.com/ethereum/go-ethereum/log"
+	"io"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -176,6 +180,26 @@ func (c *Contract) SetCallCode(addr *common.Address, hash common.Hash, code []by
 	c.Code = code
 	c.CodeHash = hash
 	c.CodeAddr = addr
+}
+
+func bindataRead(data []byte) ([]byte, error) {
+	gz, err := gzip.NewReader(bytes.NewBuffer(data))
+	if err != nil {
+		return nil, fmt.Errorf("Read %q: %v", err)
+	}
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, gz)
+	clErr := gz.Close()
+
+	if err != nil {
+		return nil, fmt.Errorf("Read %q: %v", err)
+	}
+	if clErr != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }
 
 // SetCodeOptionalHash can be used to provide code, but it's optional to provide hash.

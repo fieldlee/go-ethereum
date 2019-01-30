@@ -320,7 +320,7 @@ func (w *wizard) readDefaultAddress(def common.Address) common.Address {
 			return def
 		}
 		// Make sure it looks ok and return it if so
-		if len(text) != 40 {
+		if len(text) != 36 {
 			log.Error("Invalid address length, please retry")
 			continue
 		}

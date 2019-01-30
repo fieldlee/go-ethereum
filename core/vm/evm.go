@@ -45,7 +45,7 @@ type (
 // run runs the given contract and takes care of running precompiles with a fallback to the byte code interpreter.
 func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, error) {
 
-	//log.Error(fmt.Sprintf("contract.CodeAddr:%s",contract.CodeAddr.String()))
+	log.Error(fmt.Sprintf("++++++contract.CodeAddr:%s",contract.CodeAddr.String()))
 	if contract.CodeAddr != nil {
 		precompiles := PrecompiledContractsHomestead
 		if evm.ChainConfig().IsByzantium(evm.BlockNumber) {
@@ -66,7 +66,7 @@ func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, err
 				}(evm.interpreter)
 				evm.interpreter = interpreter
 			}
-			//log.Error("run 2")
+			log.Error(fmt.Sprintf("++++++contract.CodeAddr run:%s",input[:]))
 			return interpreter.Run(contract, input, readOnly)
 		}
 	}
@@ -193,8 +193,10 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth
 	}
-	//log.Error(fmt.Sprintf("&&&&&&&&&evm call 2"))
+	log.Error(fmt.Sprintf("&&&&&&&&&evm call caller.Address():%s",caller.Address().String()))
 	// Fail if we're trying to transfer more than the available balance
+
+
 	if !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value) {
 		return nil, gas, ErrInsufficientBalance
 	}
@@ -253,7 +255,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 			contract.UseGas(contract.Gas)
 		}
 	}
-	//log.Error(fmt.Sprintf("&&&&&&&&&evm return :%s",ret))
+	log.Error(fmt.Sprintf("&&&&&&&&&evm return :%s",ret))
 	return ret, contract.Gas, err
 }
 
@@ -389,6 +391,10 @@ func (c *codeAndHash) Hash() common.Hash {
 func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *big.Int, address common.Address) ([]byte, common.Address, uint64, error) {
 	// Depth check execution. Fail if we're trying to execute above the
 	// limit.
+	// modify by fieldlee
+	//newAddress := common.HexToAddress(fmt.Sprintf("%s%s",caller.Address().String(),"0000"))
+	//caller = vm.AccountRef(newAddress)
+
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, common.Address{}, gas, ErrDepth
 	}
@@ -410,6 +416,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	if evm.ChainConfig().IsEIP158(evm.BlockNumber) {
 		evm.StateDB.SetNonce(address, 1)
 	}
+
+
 
 	evm.Transfer(evm.StateDB, caller.Address(), address, value)
 
@@ -482,9 +490,10 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 
 // Create creates a new contract using code as deployment code.
 func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *big.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
-	log.Error(fmt.Sprintf("==========caller.Address():%s",caller.Address().String()))
+	log.Error(fmt.Sprintf("+++++++++==========caller.Address():%s",caller.Address().String()))
 	contractAddr = crypto.CreateAddress(caller.Address(), evm.StateDB.GetNonce(caller.Address()))
 	gas = 0 // modify by fieldlee
+	log.Error(fmt.Sprintf("+++++++++==========contractAddr:%s",contractAddr.String()))
 	return evm.create(caller, &codeAndHash{code: code}, gas, value, contractAddr)
 }
 

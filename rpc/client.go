@@ -256,6 +256,7 @@ func (c *Client) CallContext(ctx context.Context, result interface{}, method str
 		return err
 	}
 	op := &requestOp{ids: []json.RawMessage{msg.ID}, resp: make(chan *jsonrpcMessage, 1)}
+	//log.Error(fmt.Sprintf("CallContext:msg :%s",msg.String()))
 
 	if c.isHTTP {
 		err = c.sendHTTP(ctx, op, msg)

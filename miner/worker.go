@@ -709,6 +709,8 @@ func (w *worker) commitTransaction(tx *types.Transaction, coinbase common.Addres
 	w.current.txs = append(w.current.txs, tx)
 	w.current.receipts = append(w.current.receipts, receipt)
 
+	log.Error(fmt.Sprintf("commitTransaction ContractAddress:%s",receipt.ContractAddress.String()))
+	log.Error(fmt.Sprintf("commitTransaction Logs:%s",receipt.Logs))
 	return receipt.Logs, nil
 }
 
@@ -779,7 +781,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 		w.current.state.Prepare(tx.Hash(), common.Hash{}, w.current.tcount)
 		//log.Error(fmt.Sprintf("Start executing the transaction"))
 		logs, err := w.commitTransaction(tx, coinbase)
-
+		log.Error(fmt.Sprintf("*****-----------logs:%s",logs))
 		switch err {
 		case core.ErrGasLimitReached:
 			// Pop the current out-of-gas transaction without shifting in the next from the account
