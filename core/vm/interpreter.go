@@ -18,7 +18,6 @@ package vm
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/log"
 	"hash"
 	"sync/atomic"
 
@@ -149,7 +148,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	//	contract.caller = AccountRef(common.HexToAddress(newContractAdr))
 	//}
 
-	log.Error(fmt.Sprintf("%%%%%%%%%%%%%contract.caller address :%s ",contract.caller.Address().String()))
+	//log.Error(fmt.Sprintf("%%%%%%%%%%%%%contract.caller address :%s ",contract.caller.Address().String()))
 
 	if in.intPool == nil {
 		in.intPool = poolOfIntPools.get()

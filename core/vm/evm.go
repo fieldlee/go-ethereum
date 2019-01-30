@@ -193,7 +193,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth
 	}
-	log.Error(fmt.Sprintf("&&&&&&&&&evm call caller.Address():%s",caller.Address().String()))
+	//log.Error(fmt.Sprintf("&&&&&&&&&evm call caller.Address():%s",caller.Address().String()))
 	// Fail if we're trying to transfer more than the available balance
 
 
@@ -255,7 +255,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 			contract.UseGas(contract.Gas)
 		}
 	}
-	log.Error(fmt.Sprintf("&&&&&&&&&evm return :%s",ret))
+	//log.Error(fmt.Sprintf("&&&&&&&&&evm return :%s",ret))
 	return ret, contract.Gas, err
 }
 
