@@ -19,13 +19,12 @@ package miner
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"math/big"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	mapset "github.com/deckarep/golang-set"
+	"github.com/deckarep/golang-set"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/misc"
@@ -709,8 +708,8 @@ func (w *worker) commitTransaction(tx *types.Transaction, coinbase common.Addres
 	w.current.txs = append(w.current.txs, tx)
 	w.current.receipts = append(w.current.receipts, receipt)
 
-	log.Error(fmt.Sprintf("commitTransaction ContractAddress:%s",receipt.ContractAddress.String()))
-	log.Error(fmt.Sprintf("commitTransaction Logs:%s",receipt.Logs))
+	//log.Error(fmt.Sprintf("commitTransaction ContractAddress:%s",receipt.ContractAddress.String()))
+	//log.Error(fmt.Sprintf("commitTransaction Logs:%s",receipt.Logs))
 	return receipt.Logs, nil
 }
 
@@ -747,7 +746,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 					inc:   true,
 				}
 			}
-			log.Error(fmt.Sprintf("atomic.LoadInt32(interrupt) == commitInterruptNewHead:%s",atomic.LoadInt32(interrupt) == commitInterruptNewHead))
+			//log.Error(fmt.Sprintf("atomic.LoadInt32(interrupt) == commitInterruptNewHead:%s",atomic.LoadInt32(interrupt) == commitInterruptNewHead))
 			return atomic.LoadInt32(interrupt) == commitInterruptNewHead
 		}
 		// If we don't have enough gas for any further transactions then we're done
@@ -781,7 +780,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 		w.current.state.Prepare(tx.Hash(), common.Hash{}, w.current.tcount)
 		//log.Error(fmt.Sprintf("Start executing the transaction"))
 		logs, err := w.commitTransaction(tx, coinbase)
-		log.Error(fmt.Sprintf("*****-----------logs:%s",logs))
+		//log.Error(fmt.Sprintf("*****-----------logs:%s",logs))
 		switch err {
 		case core.ErrGasLimitReached:
 			// Pop the current out-of-gas transaction without shifting in the next from the account

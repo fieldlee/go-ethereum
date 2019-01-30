@@ -19,7 +19,6 @@ package state
 import (
 	"bytes"
 	"fmt"
-	"github.com/ethereum/go-ethereum/log"
 	"io"
 	"math/big"
 
@@ -111,8 +110,8 @@ func newObject(db *StateDB, address common.Address, data Account) *stateObject {
 	if data.CodeHash == nil {
 		data.CodeHash = emptyCodeHash
 	}
-	log.Error(fmt.Sprintf("state_object  newObject address:%s",address.String()))
-	log.Error(fmt.Sprintf("state_object  newObject address hash:%s",crypto.Keccak256Hash(address[:]).String()))
+	//log.Error(fmt.Sprintf("state_object  newObject address:%s",address.String()))
+	//log.Error(fmt.Sprintf("state_object  newObject address hash:%s",crypto.Keccak256Hash(address[:]).String()))
 	return &stateObject{
 		db:            db,
 		address:       address,
