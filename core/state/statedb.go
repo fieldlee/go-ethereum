@@ -469,7 +469,7 @@ func (self *StateDB) createObject(addr common.Address) (newobj, prev *stateObjec
 //
 // Carrying over the balance ensures that Ether doesn't disappear.
 func (self *StateDB) CreateAccount(addr common.Address) {
-	log.Error(fmt.Sprintf("StateDB=======CreateAccount:%s",addr.String()))
+	//log.Error(fmt.Sprintf("StateDB=======CreateAccount:%s",addr.String()))
 	newObj, prev := self.createObject(addr)
 	if prev != nil {
 		newObj.setBalance(prev.data.Balance)

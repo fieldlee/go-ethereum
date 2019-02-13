@@ -275,6 +275,7 @@ func (hc *HeaderChain) InsertHeaderChain(chain []*types.Header, writeHeader WhCa
 			continue
 		}
 		if err := writeHeader(header); err != nil {
+			log.Error("InsertHeaderChain","err","writeHeader")
 			return i, err
 		}
 		stats.processed++

@@ -388,6 +388,7 @@ func (self *LightChain) InsertHeaderChain(chain []*types.Header, checkFreq int) 
 		}
 		return err
 	}
+	log.Error("InsertHeaderChain","err","self.hc.InsertHeaderChain")
 	i, err := self.hc.InsertHeaderChain(chain, whFunc, start)
 	self.postChainEvents(events)
 	return i, err

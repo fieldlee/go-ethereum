@@ -934,6 +934,7 @@ func (d *Downloader) fetchHeaders(p *peerConnection, from uint64, pivot uint64) 
 				filled, proced, err := d.fillHeaderSkeleton(from, headers)
 				if err != nil {
 					p.log.Debug("Skeleton chain invalid", "err", err)
+					log.Error("sync2","err",err)
 					return errInvalidChain
 				}
 				headers = filled[proced:]
@@ -1148,6 +1149,7 @@ func (d *Downloader) fetchParts(errCancel error, deliveryCh chan dataPack, deliv
 				// Deliver the received chunk of data and check chain validity
 				accepted, err := deliver(packet)
 				if err == errInvalidChain {
+					log.Error("sync1","err",err)
 					return err
 				}
 				// Unless a peer delivered something completely else than requested (usually
@@ -1404,6 +1406,7 @@ func (d *Downloader) processHeaders(origin uint64, pivot uint64, td *big.Int) er
 							rollback = append(rollback, chunk[:n]...)
 						}
 						log.Debug("Invalid header encountered", "number", chunk[n].Number, "hash", chunk[n].Hash(), "err", err)
+						log.Error("sync3","err",err)
 						return errInvalidChain
 					}
 					// All verifications passed, store newly found uncertain headers
