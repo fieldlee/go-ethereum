@@ -90,6 +90,13 @@ func UnmarshalFixedText(typname string, input, out []byte) error {
 	if err != nil {
 		return err
 	}
+	// add by fieldlee
+	if typname == "common.Address" {
+		if len(raw) == 40 {
+			raw = raw[4:]
+		}
+	}
+
 	if len(raw)/2 != len(out) {
 		return fmt.Errorf("hex string has length %d, want %d for %s", len(raw), len(out)*2, typname)
 	}
@@ -111,6 +118,14 @@ func UnmarshalFixedUnprefixedText(typname string, input, out []byte) error {
 	if err != nil {
 		return err
 	}
+
+	// add by fieldlee
+	if typname == "common.Address" {
+		if len(raw) == 40 {
+			raw = raw[4:]
+		}
+	}
+
 	if len(raw)/2 != len(out) {
 		return fmt.Errorf("hex string has length %d, want %d for %s", len(raw), len(out)*2, typname)
 	}

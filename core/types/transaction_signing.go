@@ -128,6 +128,8 @@ func (s EIP155Signer) Sender(tx *Transaction) (common.Address, error) {
 	if !tx.Protected() {
 		return HomesteadSigner{}.Sender(tx)
 	}
+	//log.Error("Sender Transaction ","tx.ChainId",tx.ChainId())
+	//log.Error("Sender Transaction ","s.chainId",s.chainId)
 	if tx.ChainId().Cmp(s.chainId) != 0 {
 		return common.Address{}, ErrInvalidChainId
 	}
@@ -248,6 +250,7 @@ func recoverPlain(sighash common.Hash, R, S, Vb *big.Int, homestead bool) (commo
 	//log.Error(string(crypto.Keccak256(pub[1:])[12:]))
 
 	copy(addr[:], crypto.Keccak256(pub[1:])[14:32])  // modify address fieldlee
+	//log.Error("transaction signing","address",addr.String())
 	return addr, nil
 }
 
