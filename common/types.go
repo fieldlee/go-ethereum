@@ -21,7 +21,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"math/rand"
 	"reflect"
@@ -265,7 +264,7 @@ func (a *Address) UnmarshalText(input []byte) error {
 
 // UnmarshalJSON parses a hash in hex syntax.
 func (a *Address) UnmarshalJSON(input []byte) error {
-	log.Error("address UnmarshalJSON ","err",BytesToAddress(input))
+	//log.Error("address UnmarshalJSON ","err",BytesToAddress(input))
 	//byteInput := BytesToAddress(input).Bytes()
 	return hexutil.UnmarshalFixedJSON(addressT, input, a[:])
 }
