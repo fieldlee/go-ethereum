@@ -20,6 +20,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -90,6 +91,14 @@ func UnmarshalFixedText(typname string, input, out []byte) error {
 	if err != nil {
 		return err
 	}
+	// add by fieldlee
+	if typname == "common.Address" {
+		if len(raw) == 40 {
+			raw = raw[4:]
+			log.Error("UnmarshalFixedUnprefixedText","address",string(raw))
+		}
+	}
+
 	if len(raw)/2 != len(out) {
 		return fmt.Errorf("hex string has length %d, want %d for %s", len(raw), len(out)*2, typname)
 	}
@@ -111,6 +120,15 @@ func UnmarshalFixedUnprefixedText(typname string, input, out []byte) error {
 	if err != nil {
 		return err
 	}
+
+	// add by fieldlee
+	if typname == "common.Address" {
+		if len(raw) == 40 {
+			raw = raw[4:]
+			log.Error("UnmarshalFixedUnprefixedText", "address", string(raw))
+		}
+	}
+
 	if len(raw)/2 != len(out) {
 		return fmt.Errorf("hex string has length %d, want %d for %s", len(raw), len(out)*2, typname)
 	}

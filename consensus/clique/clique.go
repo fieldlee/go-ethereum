@@ -584,7 +584,6 @@ func (c *Clique) Finalize(chain consensus.ChainReader, header *types.Header, sta
 
 	header.Root = state.IntermediateRoot(chain.Config().IsEIP158(header.Number))
 	header.UncleHash = types.CalcUncleHash(nil)
-	log.Error("((((((((((((((((((((((")
 	// Assemble and return the final block for sealing
 	return types.NewBlock(header, txs, nil, receipts), nil
 }

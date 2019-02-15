@@ -66,7 +66,7 @@ func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, err
 				}(evm.interpreter)
 				evm.interpreter = interpreter
 			}
-			//log.Error(fmt.Sprintf("++++++contract.CodeAddr run:%s",input[:]))
+			log.Error(fmt.Sprintf("++++++contract.CodeAddr run:%s",string(input[:])))
 			return interpreter.Run(contract, input, readOnly)
 		}
 	}

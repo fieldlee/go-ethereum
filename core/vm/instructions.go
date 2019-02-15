@@ -38,6 +38,7 @@ var (
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
+
 	//log.Error("opAdd")
 	x, y := stack.pop(), stack.peek()
 	math.U256(y.Add(x, y))

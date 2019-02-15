@@ -257,11 +257,15 @@ func (a Address) MarshalText() ([]byte, error) {
 
 // UnmarshalText parses a hash in hex syntax.
 func (a *Address) UnmarshalText(input []byte) error {
+	// add by fieldlee
+	//byteInput := BytesToAddress(input).Bytes()
 	return hexutil.UnmarshalFixedText("Address", input, a[:])
 }
 
 // UnmarshalJSON parses a hash in hex syntax.
 func (a *Address) UnmarshalJSON(input []byte) error {
+	//log.Error("address UnmarshalJSON ","err",BytesToAddress(input))
+	//byteInput := BytesToAddress(input).Bytes()
 	return hexutil.UnmarshalFixedJSON(addressT, input, a[:])
 }
 
