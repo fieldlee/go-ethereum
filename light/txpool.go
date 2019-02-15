@@ -349,14 +349,14 @@ func (pool *TxPool) validateTx(ctx context.Context, tx *types.Transaction) error
 	// Validate the transaction sender and it's sig. Throw
 	// if the from fields is invalid.
 	if from, err = types.Sender(pool.signer, tx); err != nil {
-		log.Error("ErrInvalidSender1","err",err)
+		//log.Error("ErrInvalidSender1","err",err)
 		return core.ErrInvalidSender
 	}
 	// Last but not least check for nonce errors
 	currentState := pool.currentState(ctx)
 
 	if n := currentState.GetNonce(from); n > tx.Nonce() {
-		log.Error(fmt.Sprintf("&&&&&& GetNonce(from):%s  tx.Nonce:%s",n,tx.Nonce()))
+		//log.Error(fmt.Sprintf("&&&&&& GetNonce(from):%s  tx.Nonce:%s",n,tx.Nonce()))
 		return core.ErrNonceTooLow
 	}
 
@@ -369,7 +369,7 @@ func (pool *TxPool) validateTx(ctx context.Context, tx *types.Transaction) error
 		log.Error(fmt.Sprintf("------tx.To():%s",tx.To().String()))
 	}
 
-	log.Error(fmt.Sprintf("------tx.Cost():%s",tx.Cost()))
+	//log.Error(fmt.Sprintf("------tx.Cost():%s",tx.Cost()))
 	//log.Error(fmt.Sprintf("------header.GasLimit:%s",header.GasLimit))
 	//if header.GasLimit < tx.Gas() {
 	//	return core.ErrGasLimit
