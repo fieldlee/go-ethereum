@@ -45,7 +45,7 @@ type (
 // run runs the given contract and takes care of running precompiles with a fallback to the byte code interpreter.
 func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, error) {
 
-	log.Error(fmt.Sprintf("++++++contract.CodeAddr:%s",contract.CodeAddr.String()))
+	//log.Error(fmt.Sprintf("++++++contract.CodeAddr:%s",contract.CodeAddr.String()))
 	if contract.CodeAddr != nil {
 		precompiles := PrecompiledContractsHomestead
 		if evm.ChainConfig().IsByzantium(evm.BlockNumber) {
@@ -66,7 +66,7 @@ func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, err
 				}(evm.interpreter)
 				evm.interpreter = interpreter
 			}
-			log.Error(fmt.Sprintf("++++++contract.CodeAddr run:%s",string(input[:])))
+			//log.Error(fmt.Sprintf("++++++contract.CodeAddr run:%s",string(input[:])))
 			return interpreter.Run(contract, input, readOnly)
 		}
 	}

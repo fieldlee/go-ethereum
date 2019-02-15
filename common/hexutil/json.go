@@ -92,6 +92,7 @@ func UnmarshalFixedText(typname string, input, out []byte) error {
 		return err
 	}
 	// add by fieldlee
+
 	if typname == "common.Address" {
 		if len(raw) == 40 {
 			raw = raw[4:]
